@@ -21,6 +21,14 @@ public class InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         {
             button.onClick.AddListener(OnClick);
         }
+        // normalize RectTransform to avoid prefab scale/position drift
+        var rt = GetComponent<RectTransform>();
+        if (rt != null)
+        {
+            rt.localScale = Vector3.one;
+            rt.anchoredPosition = Vector2.zero;
+            rt.localRotation = Quaternion.identity;
+        }
         UpdateVisual();
     }
 

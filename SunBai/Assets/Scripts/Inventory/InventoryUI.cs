@@ -87,6 +87,14 @@ public class InventoryUI : MonoBehaviour
         for (int i = 0; i < gridSlotCount; i++)
         {
             GameObject go = Instantiate(slotPrefab, gridParent);
+            // ensure transform is normalized so prefab visuals and layout behave consistently
+            go.transform.localScale = Vector3.one;
+            var rt = go.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                rt.anchoredPosition = Vector2.zero;
+                rt.localRotation = Quaternion.identity;
+            }
             InventorySlot slot = go.GetComponent<InventorySlot>();
             if (slot != null)
             {
