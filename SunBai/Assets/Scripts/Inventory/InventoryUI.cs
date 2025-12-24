@@ -41,7 +41,7 @@ public class InventoryUI : MonoBehaviour
     [Header("Layout Tweaks")]
     public float barsYOffset = -100f; // downward offset applied to all three bars
     public float barsExtraWidth = 300f; // how much to lengthen bars (added to current width)
-    public Vector2 portraitTargetSize = new Vector2(80f, 250f); // width x height for slimmer portrait
+    public Vector2 portraitTargetSize = new Vector2(30f, 50f); // width x height for slimmer portrait
 
     void Start()
     {
