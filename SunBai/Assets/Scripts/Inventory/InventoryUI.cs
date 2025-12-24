@@ -39,9 +39,9 @@ public class InventoryUI : MonoBehaviour
     public StatusBar cooldownBar;
 
     [Header("Layout Tweaks")]
-    public float barsYOffset = -30f; // downward offset applied to all three bars
-    public float barsExtraWidth = 150f; // how much to lengthen bars (added to current width)
-    public Vector2 portraitTargetSize = new Vector2(160f, 220f); // width x height for slimmer portrait
+    public float barsYOffset = -80f; // downward offset applied to all three bars
+    public float barsExtraWidth = 300f; // how much to lengthen bars (added to current width)
+    public Vector2 portraitTargetSize = new Vector2(120f, 280f); // width x height for slimmer portrait
 
     void Start()
     {
@@ -77,6 +77,8 @@ public class InventoryUI : MonoBehaviour
             {
                 // shift vertically
                 rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, rt.anchoredPosition.y + barsYOffset);
+                // also adjust localPosition in case a parent layout is overriding anchoredPosition
+                rt.localPosition = new Vector3(rt.localPosition.x, rt.localPosition.y + barsYOffset, rt.localPosition.z);
                 // increase width by barsExtraWidth (keep pivot)
                 Vector2 size = rt.sizeDelta;
                 size.x = Mathf.Max(16f, size.x + barsExtraWidth);
