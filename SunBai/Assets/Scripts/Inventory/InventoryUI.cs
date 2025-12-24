@@ -32,6 +32,16 @@ public class InventoryUI : MonoBehaviour
     List<InventorySlot> gridSlots = new List<InventorySlot>();
     enum Tab { Equipment, Consumables }
     Tab activeTab = Tab.Equipment;
+    
+    [Header("Status Bars")]
+    public StatusBar attackBar;
+    public StatusBar rangeBar;
+    public StatusBar cooldownBar;
+
+    [Header("Layout Tweaks")]
+    public float barsYOffset = -30f; // downward offset applied to all three bars
+    public float barsExtraWidth = 150f; // how much to lengthen bars (added to current width)
+    public Vector2 portraitTargetSize = new Vector2(160f, 220f); // width x height for slimmer portrait
 
     void Start()
     {
@@ -50,6 +60,41 @@ public class InventoryUI : MonoBehaviour
         }
         RefreshGrid();
         UpdateTabVisuals();
+        // Apply layout tweaks so bars and portrait fit design
+        ApplyLayoutTweaks();
+    }
+
+    // Public: adjust status bar positions/sizes and portrait size to match design request
+    public void ApplyLayoutTweaks()
+    {
+        // Move and lengthen status bars
+        StatusBar[] bars = new StatusBar[] { attackBar, rangeBar, cooldownBar };
+        foreach (var bar in bars)
+        {
+            if (bar == null) continue;
+            var rt = bar.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                // shift vertically
+                rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, rt.anchoredPosition.y + barsYOffset);
+                // increase width by barsExtraWidth (keep pivot)
+                Vector2 size = rt.sizeDelta;
+                size.x = Mathf.Max(16f, size.x + barsExtraWidth);
+                rt.sizeDelta = size;
+            }
+            // update label if exists to ensure text stays in sync
+            bar.SetLabel(bar.labelText != null ? bar.labelText.text : "");
+        }
+
+        // Resize portrait block
+        if (portraitImage != null)
+        {
+            var prt = portraitImage.GetComponent<RectTransform>();
+            if (prt != null)
+            {
+                prt.sizeDelta = portraitTargetSize;
+            }
+        }
     }
 
     void Update()
