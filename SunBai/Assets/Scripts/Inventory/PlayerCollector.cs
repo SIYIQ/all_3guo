@@ -8,7 +8,7 @@ public class PlayerCollector : MonoBehaviour
 {
     public InventoryUI inventoryUI;
 
-    void Awake()
+    void Start()
     {
         if (inventoryUI == null)
         {
