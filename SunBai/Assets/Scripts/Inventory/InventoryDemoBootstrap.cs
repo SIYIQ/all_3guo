@@ -214,11 +214,15 @@ public class InventoryDemoBootstrap : MonoBehaviour
     void SpawnTestPickups()
     {
         // 尝试加载 ItemData 资源（Resources/Inventory/Items 下）
+        // Debug: 输出实际加载到的资源（方便诊断 Red/Blue/Generic 哪个存在）
+        Debug.Log($"SpawnTestPickups: starting resource load");
         // 优先加载专用的 RedPotion / BluePotion，如果不存在再回退到旧的 Potion 资源
         ItemData redPotion = Resources.Load<ItemData>("Inventory/Items/RedPotion");
         ItemData bluePotion = Resources.Load<ItemData>("Inventory/Items/BluePotion");
         ItemData genericPotion = Resources.Load<ItemData>("Inventory/Items/Potion");
         ItemData sword = Resources.Load<ItemData>("Inventory/Items/Sword");
+
+        Debug.Log($"SpawnTestPickups loaded: red={(redPotion!=null?redPotion.itemName:\"null\")}, blue={(bluePotion!=null?bluePotion.itemName:\"null\")}, generic={(genericPotion!=null?genericPotion.itemName:\"null\")}, sword={(sword!=null?sword.itemName:\"null\")}");
 
         ItemData potion = redPotion != null ? redPotion : (bluePotion != null ? bluePotion : genericPotion);
 
@@ -240,6 +244,8 @@ public class InventoryDemoBootstrap : MonoBehaviour
     void CreatePickupAt(ItemData item, int amount, Vector3 pos)
     {
         if (item == null) return;
+        // Debug: 输出创建拾取物时使用的 ItemData 及位置/数量
+        Debug.Log($"CreatePickupAt: creating pickup for {(item!=null?item.itemName:\"null\")} amount={amount} at {pos}");
         GameObject go = new GameObject("Pickup_" + item.itemName);
         go.transform.position = pos;
         var pickup = go.AddComponent<ItemPickup>();
