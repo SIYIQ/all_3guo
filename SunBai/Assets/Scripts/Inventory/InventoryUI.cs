@@ -4,6 +4,12 @@ using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
+    // Helper: compare two ItemData for game-equivalence (by name and type).
+    public static bool ItemsMatch(ItemData a, ItemData b)
+    {
+        if (a == null || b == null) return false;
+        return a.itemType == b.itemType && !string.IsNullOrEmpty(a.itemName) && a.itemName == b.itemName;
+    }
     [Header("Root")]
     public GameObject inventoryRoot; // 整个底板（按 I 键显示/隐藏）
 
@@ -315,7 +321,7 @@ public class InventoryUI : MonoBehaviour
     {
         // 按照 inventoryItems 的顺序聚合相同 ItemData（保留顺序，确保同类堆叠连续显示）
         List<KeyValuePair<ItemData, int>> entries = new List<KeyValuePair<ItemData, int>>();
-        Dictionary<ItemData, int> indexMap = new Dictionary<ItemData, int>();
+        Dictionary<string, int> indexMap = new Dictionary<string, int>();
         for (int i = 0; i < inventoryItems.Count; i++)
         {
             var it = inventoryItems[i];
@@ -323,7 +329,8 @@ public class InventoryUI : MonoBehaviour
             if (activeTab == Tab.Equipment && !(it.itemType == ItemType.Weapon || it.itemType == ItemType.Gear)) continue;
             if (activeTab == Tab.Consumables && it.itemType != ItemType.Consumable) continue;
 
-            if (indexMap.TryGetValue(it, out int idx))
+            string key = $"{it.itemType}:{it.itemName}";
+            if (indexMap.TryGetValue(key, out int idx))
             {
                 var kv = entries[idx];
                 kv = new KeyValuePair<ItemData, int>(kv.Key, kv.Value + 1);
@@ -331,7 +338,7 @@ public class InventoryUI : MonoBehaviour
             }
             else
             {
-                indexMap[it] = entries.Count;
+                indexMap[key] = entries.Count;
                 entries.Add(new KeyValuePair<ItemData, int>(it, 1));
             }
         }
@@ -357,7 +364,15 @@ public class InventoryUI : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             // 如果已有同类物品，则插入到最后一个同类物品后面以保持分组
-            int lastIndex = inventoryItems.LastIndexOf(item);
+            int lastIndex = -1;
+            for (int j = inventoryItems.Count - 1; j >= 0; j--)
+            {
+                if (ItemsMatch(inventoryItems[j], item))
+                {
+                    lastIndex = j;
+                    break;
+                }
+            }
             if (lastIndex >= 0)
                 inventoryItems.Insert(lastIndex + 1, item);
             else
@@ -372,7 +387,7 @@ public class InventoryUI : MonoBehaviour
         int removed = 0;
         for (int i = inventoryItems.Count - 1; i >= 0 && removed < count; i--)
         {
-            if (inventoryItems[i] == item)
+            if (ItemsMatch(inventoryItems[i], item))
             {
                 inventoryItems.RemoveAt(i);
                 removed++;

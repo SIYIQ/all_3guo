@@ -39,7 +39,7 @@ public class PlayerCollector : MonoBehaviour
         {
             foreach (var it in inventoryUI.inventoryItems)
             {
-                if (it == item) have++;
+                if (InventoryUI.ItemsMatch(it, item)) have++;
             }
         }
 
@@ -55,12 +55,12 @@ public class PlayerCollector : MonoBehaviour
         // 如果还需要，从已装备的消耗槽里消耗（consumableSlotA/consumableSlotB）
         if (needed > 0 && inventoryUI != null)
         {
-            if (inventoryUI.consumableSlotA != null && inventoryUI.consumableSlotA.CurrentItem == item)
+            if (inventoryUI.consumableSlotA != null && InventoryUI.ItemsMatch(inventoryUI.consumableSlotA.CurrentItem, item))
             {
                 inventoryUI.consumableSlotA.SetItem(null);
                 needed = Mathf.Max(0, needed - 1);
             }
-            if (needed > 0 && inventoryUI.consumableSlotB != null && inventoryUI.consumableSlotB.CurrentItem == item)
+            if (needed > 0 && inventoryUI.consumableSlotB != null && InventoryUI.ItemsMatch(inventoryUI.consumableSlotB.CurrentItem, item))
             {
                 inventoryUI.consumableSlotB.SetItem(null);
                 needed = Mathf.Max(0, needed - 1);
