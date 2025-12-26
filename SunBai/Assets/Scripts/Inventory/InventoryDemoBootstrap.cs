@@ -348,6 +348,20 @@ public class InventoryDemoBootstrap : MonoBehaviour
         InventorySlot slot = go.AddComponent<InventorySlot>();
         slot.icon = iconImg;
         slot.button = btn;
+        // Count text (bottom-right)
+        GameObject countGO = CreateUIObject("Count", go.transform);
+        RectTransform countRt = countGO.AddComponent<RectTransform>();
+        countRt.anchorMin = new Vector2(1f, 0f);
+        countRt.anchorMax = new Vector2(1f, 0f);
+        countRt.pivot = new Vector2(1f, 0f);
+        countRt.anchoredPosition = new Vector2(-6f, 6f);
+        countRt.sizeDelta = new Vector2(40f, 20f);
+        Text countText = countGO.AddComponent<Text>();
+        countText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        countText.color = Color.white;
+        countText.alignment = TextAnchor.LowerRight;
+        countText.text = "";
+        slot.countText = countText;
         return go;
     }
 

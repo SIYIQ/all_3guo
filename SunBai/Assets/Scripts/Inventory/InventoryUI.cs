@@ -313,30 +313,53 @@ public class InventoryUI : MonoBehaviour
 
     public void RefreshGrid()
     {
-        List<ItemData> filtered = new List<ItemData>();
+        // 聚合相同 ItemData 的数量，便于显示数量（堆叠）
+        Dictionary<ItemData, int> counts = new Dictionary<ItemData, int>();
         foreach (var it in inventoryItems)
         {
             if (it == null) continue;
-            if (activeTab == Tab.Equipment && (it.itemType == ItemType.Weapon || it.itemType == ItemType.Gear))
-                filtered.Add(it);
-            if (activeTab == Tab.Consumables && it.itemType == ItemType.Consumable)
-                filtered.Add(it);
+            if (activeTab == Tab.Equipment && !(it.itemType == ItemType.Weapon || it.itemType == ItemType.Gear)) continue;
+            if (activeTab == Tab.Consumables && it.itemType != ItemType.Consumable) continue;
+            if (counts.ContainsKey(it)) counts[it]++; else counts[it] = 1;
         }
+
+        var entries = new List<KeyValuePair<ItemData, int>>(counts);
 
         for (int i = 0; i < gridSlots.Count; i++)
         {
-            if (i < filtered.Count)
-                gridSlots[i].SetItem(filtered[i]);
+            if (i < entries.Count)
+                gridSlots[i].SetItem(entries[i].Key, entries[i].Value);
             else
-                gridSlots[i].SetItem(null);
+                gridSlots[i].SetItem(null, 0);
         }
     }
 
     // Helper: add item to inventory and refresh
     public void AddItemToInventory(ItemData item)
     {
-        if (item == null) return;
-        inventoryItems.Add(item);
+        AddItemToInventory(item, 1);
+    }
+
+    public void AddItemToInventory(ItemData item, int count)
+    {
+        if (item == null || count <= 0) return;
+        for (int i = 0; i < count; i++)
+            inventoryItems.Add(item);
+        RefreshGrid();
+    }
+
+    public void RemoveItemFromInventory(ItemData item, int count)
+    {
+        if (item == null || count <= 0) return;
+        int removed = 0;
+        for (int i = inventoryItems.Count - 1; i >= 0 && removed < count; i--)
+        {
+            if (inventoryItems[i] == item)
+            {
+                inventoryItems.RemoveAt(i);
+                removed++;
+            }
+        }
         RefreshGrid();
     }
 

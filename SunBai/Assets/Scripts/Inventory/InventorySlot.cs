@@ -9,9 +9,11 @@ public class InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     public Image icon;
     public Button button;
     public Sprite emptySprite;
+    public Text countText;
 
     public ItemData Item { get; private set; }
     public InventoryUI parentUI;
+    public int Count { get; private set; }
 
     public void Init(InventoryUI parent, Sprite empty)
     {
@@ -34,7 +36,13 @@ public class InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void SetItem(ItemData data)
     {
+        SetItem(data, 1);
+    }
+
+    public void SetItem(ItemData data, int count)
+    {
         Item = data;
+        Count = Mathf.Max(0, count);
         UpdateVisual();
     }
 
@@ -43,6 +51,10 @@ public class InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         if (icon == null) return;
         icon.sprite = Item != null ? Item.icon : emptySprite;
         icon.color = Item != null ? Color.white : new Color(1f, 1f, 1f, 0.6f);
+        if (countText != null)
+        {
+            countText.text = (Item != null && Count > 1) ? Count.ToString() : "";
+        }
     }
 
     void OnClick()
