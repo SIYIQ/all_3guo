@@ -327,6 +327,7 @@ public class InventoryUI : MonoBehaviour
 
     public void RefreshGrid()
     {
+        Debug.Log($"InventoryUI: RefreshGrid activeTab={activeTab} inventoryItems.Count={inventoryItems?.Count ?? 0}");
         // 按照 inventoryItems 的顺序聚合相同 ItemData（保留顺序，确保同类堆叠连续显示）
         List<KeyValuePair<ItemData, int>> entries = new List<KeyValuePair<ItemData, int>>();
         Dictionary<string, int> indexMap = new Dictionary<string, int>();
@@ -358,6 +359,7 @@ public class InventoryUI : MonoBehaviour
             else
                 gridSlots[i].SetItem(null, 0);
         }
+        Debug.Log($"InventoryUI: RefreshGrid entries.Count={entries.Count} gridSlots.Count={gridSlots.Count}");
     }
 
     // Helper: add item to inventory and refresh
@@ -369,6 +371,7 @@ public class InventoryUI : MonoBehaviour
     public void AddItemToInventory(ItemData item, int count)
     {
         if (item == null || count <= 0) return;
+        Debug.Log($"InventoryUI: AddItemToInventory {item.itemName} x{count}");
         for (int i = 0; i < count; i++)
         {
             // 如果已有同类物品，则插入到最后一个同类物品后面以保持分组
