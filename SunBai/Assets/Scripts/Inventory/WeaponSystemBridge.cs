@@ -98,7 +98,7 @@ public class WeaponSystemBridge : MonoBehaviour
                 try
                 {
                     int ap = GetCurrentAttackPower();
-                    Debug.Log($\"WeaponSystemBridge: CurrentAttackPower = {ap}\");
+                    Debug.Log("WeaponSystemBridge: CurrentAttackPower = {ap}");
                 }
                 catch { }
                 return true;
@@ -133,7 +133,7 @@ public class WeaponSystemBridge : MonoBehaviour
             if (unequipMethod != null)
             {
                 unequipMethod.Invoke(playerCombatComponent, null);
-                Debug.Log(\"WeaponSystemBridge: UnequipWeapon invoked\");
+                Debug.Log("WeaponSystemBridge: UnequipWeapon invoked");
                 OnWeaponUnequipped?.Invoke();
             }
             else

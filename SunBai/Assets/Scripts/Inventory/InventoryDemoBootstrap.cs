@@ -250,7 +250,7 @@ public class InventoryDemoBootstrap : MonoBehaviour
         // assign the inventoryUI reference so the slot can remove items from inventory list on drop
         slot.inventoryUI = inventoryUI;
         // 创建名称文本（位于槽下方）
-        GameObject nameGO = CreateUIObject(\"Name\", go.transform);
+        GameObject nameGO = CreateUIObject("Name", go.transform);
         RectTransform nameRt = nameGO.AddComponent<RectTransform>();
         nameRt.anchorMin = new Vector2(0f, 0f);
         nameRt.anchorMax = new Vector2(1f, 0f);
@@ -258,10 +258,10 @@ public class InventoryDemoBootstrap : MonoBehaviour
         nameRt.anchoredPosition = new Vector2(0f, -18f);
         nameRt.sizeDelta = new Vector2(0f, 18f);
         Text nameText = nameGO.AddComponent<Text>();
-        nameText.font = Resources.GetBuiltinResource<Font>(\"LegacyRuntime.ttf\");
+        nameText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         nameText.alignment = TextAnchor.UpperCenter;
         nameText.color = Color.white;
-        nameText.text = \"\";
+        nameText.text = "";
         slot.nameText = nameText;
         return slot;
     }
