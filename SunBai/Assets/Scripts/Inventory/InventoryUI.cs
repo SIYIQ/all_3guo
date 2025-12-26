@@ -62,11 +62,34 @@ public class InventoryUI : MonoBehaviour
     {
         Debug.Log("InventoryUI: Starting initialization...");
 
-        // 检查inventoryRoot
+        // 检查inventoryRoot：尝试从 Resources 预制体或场景中恢复，保证在大多数情况下能自动修复
         if (inventoryRoot == null)
         {
-            Debug.LogError("InventoryUI: inventoryRoot is not assigned! Please assign it in the Inspector.");
-            return;
+            Debug.LogWarning("InventoryUI: inventoryRoot is not assigned. Trying to recover from Resources prefab or scene...");
+            // 尝试从 Resources 中加载预制体（路径：Resources/Inventory/Prefabs/InventoryRoot.prefab）
+            GameObject prefab = Resources.Load<GameObject>("Inventory/Prefabs/InventoryRoot");
+            if (prefab != null)
+            {
+                var inst = Instantiate(prefab);
+                inst.name = "InventoryRoot_Runtime";
+                inventoryRoot = inst;
+                Debug.Log("InventoryUI: inventoryRoot recovered by instantiating Resources/Inventory/Prefabs/InventoryRoot");
+            }
+            else
+            {
+                // 尝试按名称在场景中查找
+                var found = GameObject.Find("InventoryRoot");
+                if (found != null)
+                {
+                    inventoryRoot = found;
+                    Debug.Log("InventoryUI: inventoryRoot recovered from scene GameObject named 'InventoryRoot'");
+                }
+                else
+                {
+                    Debug.LogError("InventoryUI: inventoryRoot is not assigned and no prefab/scene fallback found. Aborting initialization.");
+                    return;
+                }
+            }
         }
 
         inventoryRoot.SetActive(false);
