@@ -46,19 +46,19 @@ public class PlayerConsumableController : MonoBehaviour
     {
         if (item == null)
         {
-            Debug.LogWarning(\"PlayerConsumableController: 没有绑定对应的道具 ItemData\");
+            Debug.LogWarning("PlayerConsumableController: 没有绑定对应的道具 ItemData");
             return;
         }
         if (collector == null)
         {
-            Debug.LogWarning(\"PlayerConsumableController: 找不到 PlayerCollector\");
+            Debug.LogWarning("PlayerConsumableController: 找不到 PlayerCollector");
             return;
         }
 
         bool ok = collector.ConsumeItem(item, 1);
         if (!ok)
         {
-            Debug.Log(\"PlayerConsumableController: 背包中没有足够的该道具\");
+            Debug.Log("PlayerConsumableController: 背包中没有足够的该道具");
             return;
         }
 
@@ -69,13 +69,13 @@ public class PlayerConsumableController : MonoBehaviour
             {
                 int heal = item != null && item.restoreHP > 0 ? item.restoreHP : redFallbackHeal;
                 inventoryUI.AddHP(heal);
-                Debug.Log($\"Used {item.itemName}, restored HP {heal}\");
+                Debug.Log($"Used {item.itemName}, restored HP {heal}");
             }
             else
             {
                 int heal = item != null && item.restoreMP > 0 ? item.restoreMP : blueFallbackHeal;
                 inventoryUI.AddMP(heal);
-                Debug.Log($\"Used {item.itemName}, restored MP {heal}\");
+                Debug.Log($"Used {item.itemName}, restored MP {heal}");
             }
         }
     }
