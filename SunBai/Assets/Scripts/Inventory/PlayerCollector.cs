@@ -11,6 +11,7 @@ public class PlayerCollector : MonoBehaviour
     public float proximityPickupRadius = 0.5f;
     public LayerMask pickupLayerMask;
     public float proximityCheckInterval = 0.15f;
+    public bool debugProximity = false;
     float proximityTimer = 0f;
 
     void Start()
@@ -63,7 +64,40 @@ public class PlayerCollector : MonoBehaviour
 
         // 在玩家位置附近查找可能的拾取物（只查指定层）
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, proximityPickupRadius, pickupLayerMask);
-        if (hits == null || hits.Length == 0) return;
+        if (debugProximity)
+        {
+            // 打印 LayerMask 包含的层
+            string layers = "";
+            for (int i = 0; i < 32; i++)
+            {
+                if ((pickupLayerMask.value & (1 << i)) != 0)
+                {
+                    layers += (layers.Length == 0 ? "" : ",") + LayerMask.LayerToName(i);
+                }
+            }
+            Debug.Log($"PlayerCollector[Debug]: proximity check layers=[{layers}] radius={proximityPickupRadius} hits={(hits!=null?hits.Length:0)}");
+        }
+        if (hits == null || hits.Length == 0)
+        {
+            if (debugProximity)
+            {
+                // 如果没有命中，列出所有场景中的 ItemPickup 及其距离，帮助定位是否在检测范围之外
+                var allPickups = FindObjectsOfType<ItemPickup>();
+                if (allPickups != null && allPickups.Length > 0)
+                {
+                    foreach (var p in allPickups)
+                    {
+                        float d = Vector2.Distance(transform.position, p.transform.position);
+                        Debug.Log($"PlayerCollector[Debug]: scene pickup {p.gameObject.name} at {p.transform.position} dist={d} layer={LayerMask.LayerToName(p.gameObject.layer)} isTrigger={p.GetComponent<Collider2D>()?.isTrigger}");
+                    }
+                }
+                else
+                {
+                    Debug.Log("PlayerCollector[Debug]: no ItemPickup instances found in scene");
+                }
+            }
+            return;
+        }
         foreach (var c in hits)
         {
             if (c == null) continue;
