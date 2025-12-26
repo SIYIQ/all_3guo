@@ -7,12 +7,22 @@ using UnityEngine;
 public class PlayerCollector : MonoBehaviour
 {
     public InventoryUI inventoryUI;
+    // 近距离拾取备选：当触发器事件未触发时使用 OverlapCircle 检测附近的 ItemPickup
+    public float proximityPickupRadius = 0.5f;
+    public LayerMask pickupLayerMask;
+    public float proximityCheckInterval = 0.15f;
+    float proximityTimer = 0f;
 
     void Start()
     {
         if (inventoryUI == null)
         {
             inventoryUI = FindObjectOfType<InventoryUI>();
+        }
+        // 默认只检测 Default 层（如果没有显式设置）
+        if (pickupLayerMask == 0)
+        {
+            pickupLayerMask = LayerMask.GetMask("Default");
         }
     }
 
@@ -35,6 +45,58 @@ public class PlayerCollector : MonoBehaviour
             }
             Destroy(pickup.gameObject);
         }
+    }
+
+    void Update()
+    {
+        // 定时执行近距离检测，避免每帧都查询
+        proximityTimer -= Time.deltaTime;
+        if (proximityTimer > 0f) return;
+        proximityTimer = proximityCheckInterval;
+
+        // 如果 inventoryUI 尚未绑定，尽量尝试获取
+        if (inventoryUI == null)
+        {
+            inventoryUI = FindObjectOfType<InventoryUI>();
+            if (inventoryUI == null) return;
+        }
+
+        // 在玩家位置附近查找可能的拾取物（只查指定层）
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, proximityPickupRadius, pickupLayerMask);
+        if (hits == null || hits.Length == 0) return;
+        foreach (var c in hits)
+        {
+            if (c == null) continue;
+            var pickup = c.GetComponent<ItemPickup>();
+            if (pickup == null) continue;
+            // 如果发现 ItemPickup，执行拾取（与 OnTriggerEnter2D 相同的逻辑）
+            TryProcessPickup(pickup);
+        }
+    }
+
+    // 将拾取处理抽成方法以便 OnTriggerEnter2D 和近距离检测复用
+    void TryProcessPickup(ItemPickup pickup)
+    {
+        if (pickup == null || pickup.item == null) return;
+        // 防止重复拾取：如果对象已经被其他逻辑标记为不可用则跳过
+        if (!pickup.gameObject.activeInHierarchy) return;
+
+        inventoryUI.AddItemToInventory(pickup.item, pickup.amount);
+        Debug.Log($"PlayerCollector: Proximity picked up {pickup.item.itemName} x{pickup.amount}");
+        if (pickup.item.itemType == ItemType.Consumable)
+        {
+            inventoryUI.OpenConsumablesTab();
+        }
+        // 先将对象设为不可见/不可交互，避免在同一帧内重复处理
+        pickup.gameObject.SetActive(false);
+        Destroy(pickup.gameObject);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        // 在编辑器中绘制近距离检测范围，便于调试
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, proximityPickupRadius);
     }
 
     /// <summary>
