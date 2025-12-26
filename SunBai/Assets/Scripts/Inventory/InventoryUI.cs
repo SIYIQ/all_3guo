@@ -154,6 +154,30 @@ public class InventoryUI : MonoBehaviour
 
     void CreateGridSlots()
     {
+        // Ensure gridParent exists; if not, try to create one under inventoryRoot
+        if (gridParent == null)
+        {
+            if (inventoryRoot != null)
+            {
+                GameObject gp = new GameObject("GridParent");
+                gp.transform.SetParent(inventoryRoot.transform, false);
+                gridParent = gp.transform;
+                Debug.Log("InventoryUI: Created runtime GridParent under InventoryRoot");
+            }
+            else
+            {
+                Debug.LogWarning("InventoryUI: gridParent is null and inventoryRoot is not available");
+                return;
+            }
+        }
+
+        // Ensure slotPrefab exists; if not, create a simple runtime slot prefab
+        if (slotPrefab == null)
+        {
+            slotPrefab = CreateRuntimeSlotPrefab();
+            Debug.Log("InventoryUI: Created runtime slotPrefab");
+        }
+
         if (slotPrefab == null || gridParent == null) return;
         // Clear existing children created previously
         for (int i = gridParent.childCount - 1; i >= 0; i--)
@@ -182,6 +206,49 @@ public class InventoryUI : MonoBehaviour
                 gridSlots.Add(slot);
             }
         }
+    }
+
+    // Create a minimal runtime slot prefab when none provided by demo/bootstrap
+    private GameObject CreateRuntimeSlotPrefab()
+    {
+        GameObject go = new GameObject("SlotPrefab_Runtime");
+        RectTransform rt = go.AddComponent<RectTransform>();
+        Image bg = go.AddComponent<Image>();
+        bg.color = new Color(0.3f, 0.3f, 0.3f);
+        Button btn = go.AddComponent<Button>();
+
+        // Icon child
+        GameObject iconGO = new GameObject("Icon");
+        iconGO.transform.SetParent(go.transform, false);
+        RectTransform iconRt = iconGO.AddComponent<RectTransform>();
+        iconRt.anchorMin = new Vector2(0f, 0f);
+        iconRt.anchorMax = new Vector2(1f, 1f);
+        Image iconImg = iconGO.AddComponent<Image>();
+        iconImg.color = Color.white;
+
+        InventorySlot slot = go.AddComponent<InventorySlot>();
+        slot.icon = iconImg;
+        slot.button = btn;
+
+        // Count text (bottom-right)
+        GameObject countGO = new GameObject("Count");
+        countGO.transform.SetParent(go.transform, false);
+        RectTransform countRt = countGO.AddComponent<RectTransform>();
+        countRt.anchorMin = new Vector2(1f, 0f);
+        countRt.anchorMax = new Vector2(1f, 0f);
+        countRt.pivot = new Vector2(1f, 0f);
+        countRt.anchoredPosition = new Vector2(-6f, 6f);
+        countRt.sizeDelta = new Vector2(40f, 20f);
+        Text countText = countGO.AddComponent<Text>();
+        countText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        countText.color = Color.white;
+        countText.alignment = TextAnchor.LowerRight;
+        countText.text = "";
+        slot.countText = countText;
+
+        // Make prefab inactive template
+        go.SetActive(true);
+        return go;
     }
 
     public void OnGridSlotClicked(InventorySlot slot)
