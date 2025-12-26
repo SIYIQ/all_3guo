@@ -188,7 +188,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 746313991}
-  - component: {fileID: 746313992}
   m_Layer: 0
   m_Name: InventoryDemoBootstrap
   m_TagString: Untagged
@@ -220,7 +219,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 746313989}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f215495c22a38d44ab21163397ea115, type: 3}
+  m_Script: {fileID: 0}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &817598883
@@ -2742,7 +2741,6 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 746313991}
   - {fileID: 938209420}
   - {fileID: 1314458859}
   - {fileID: 869983520}
