@@ -4,7 +4,6 @@ using UnityEditor;
 
 /// <summary>
 /// 编辑器工具：在场景中创建一个可绑定的 InventoryRoot（仅用于编辑器，方便在 Inspector 里绑定）
-///              以及自动把 PlayerCollector 添加并绑定到场景中的 Player（名为 \"Player\" 的对象）。
 /// 菜单位置：Assets -> Inventory -> ...
 /// </summary>
 public static class InventoryEditorTools
@@ -21,7 +20,7 @@ public static class InventoryEditorTools
         }
 
         GameObject root = new GameObject("InventoryRoot");
-        // 添加 InventoryUI 组件以便在 Inspector 可见并可被 PlayerCollector 绑定
+        // 添加 InventoryUI 组件以便在 Inspector 可见
         InventoryUI ui = root.AddComponent<InventoryUI>();
 
         // 创建一些最小的子对象作为占位，避免在编辑器绑定时产生空引用问题
@@ -69,36 +68,9 @@ public static class InventoryEditorTools
         // 选中并保存场景对象
         Selection.activeGameObject = root;
         EditorUtility.SetDirty(root);
-        Debug.Log("InventoryEditorTools: Created InventoryRoot in scene. You can now bind it to PlayerCollector in Inspector.");
+        Debug.Log("InventoryEditorTools: Created InventoryRoot in scene.");
     }
 
-    [MenuItem("Assets/Inventory/Auto Bind PlayerCollector to Player")]
-    public static void AutoBindPlayerCollectorToPlayer()
-    {
-        GameObject playerObj = GameObject.Find("Player");
-        if (playerObj == null)
-        {
-            EditorUtility.DisplayDialog("Auto Bind", "场景中未找到名为 'Player' 的对象，请确保你的玩家对象命名为 Player。", "OK");
-            return;
-        }
-
-        InventoryUI ui = Object.FindObjectOfType<InventoryUI>();
-        if (ui == null)
-        {
-            EditorUtility.DisplayDialog("Auto Bind", "场景中未找到 InventoryUI，请先使用 Assets -> Inventory -> Create InventoryRoot (Editor) 创建一个。", "OK");
-            return;
-        }
-
-        PlayerCollector collector = playerObj.GetComponent<PlayerCollector>();
-        if (collector == null)
-        {
-            collector = Undo.AddComponent<PlayerCollector>(playerObj);
-        }
-        collector.inventoryUI = ui;
-        EditorUtility.SetDirty(collector);
-        Selection.activeGameObject = playerObj;
-        EditorUtility.DisplayDialog("Auto Bind", "已为 Player 添加/绑定 PlayerCollector，并将 InventoryUI 绑定到该组件。", "OK");
-    }
 }
 #endif
 

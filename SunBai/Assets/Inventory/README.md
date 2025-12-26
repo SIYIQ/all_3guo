@@ -25,12 +25,11 @@ UI setup notes:
 
 Toggle inventory with the `I` key (runtime).
  
-Quick run instructions (demo scene):
+Quick run instructions:
 
 1. Create a new empty Scene in Unity (File → New Scene).
-2. Create an empty GameObject in the Scene and name it `InventoryDemoBootstrap`.
-3. Add the `InventoryDemoBootstrap` component (script) to that GameObject.
-4. Press Play — the script will create a Canvas and the inventory UI at runtime. Press `I` to toggle the inventory.
+2. Use the editor tool: Assets → Inventory → Create InventoryRoot (Editor) to create the inventory UI.
+3. Press Play — press `I` to toggle the inventory.
 
 Notes about sprites:
 - The demo bootstrap generates simple colored runtime sprites if no art is present.

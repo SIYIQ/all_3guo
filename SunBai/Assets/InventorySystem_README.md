@@ -5,17 +5,13 @@
 
 ## 系统流程
 
-### 1. 拾取物品
-- 玩家接近场景中的 `ItemPickup` 对象时自动拾取
-- 物品直接添加到背包中，支持计数聚合
-- 支持触发器和近距离检测两种拾取方式
-
-### 2. 背包管理
+### 1. 背包管理
 - 按 `I` 键打开/关闭背包界面
 - 背包显示所有物品，支持相同物品的计数聚合
 - 分为"装备"和"消耗品"两个标签页
+- **注意：系统不再包含拾取逻辑，物品需要通过其他方式添加到背包**
 
-### 3. 使用消耗品（极简化设计）
+### 2. 使用消耗品（极简化设计）
 - **无需装备步骤！** 直接按键使用背包中的消耗品
 - 按 `1` 键使用HP药水（名称包含"HP"的消耗品）
 - 按 `2` 键使用MP药水（名称包含"MP"的消耗品）
@@ -23,8 +19,10 @@
 
 ## 主要修改
 
-### PlayerCollector.cs
-- 物品直接添加到背包，不进行任何自动装备
+### 已删除的脚本
+- **PlayerCollector.cs**：删除拾取逻辑
+- **ItemPickup.cs**：删除拾取物品组件
+- **InventoryDemoBootstrap.cs**：删除演示脚本
 
 ### PlayerConsumableController.cs
 - **完全重写**：不再管理道具槽，直接从背包查找和消耗物品
@@ -33,14 +31,9 @@
 
 ### InventoryUI.cs
 - 保持物品管理和UI显示功能
-- 移除了消耗品装备逻辑（因为不再需要）
+- 物品现在需要通过代码手动添加到背包
 
 ## 组件依赖
-
-### PlayerCollector
-- 需要挂在玩家对象上
-- 需要 Collider2D (非触发器) 和 Rigidbody2D
-- 引用 InventoryUI 组件
 
 ### PlayerConsumableController
 - 需要挂在玩家对象上
@@ -49,13 +42,14 @@
 
 ### InventoryUI
 - 管理背包界面和物品存储
+- 可以通过代码调用 `AddItemToInventory()` 方法添加物品
 
 ## 使用说明
 
-1. 在场景中放置 ItemPickup 对象，配置物品（消耗品名称应包含"HP"或"MP"）
-2. 确保玩家对象有 PlayerCollector 和 PlayerConsumableController 组件
+1. 通过代码向背包添加物品：`inventoryUI.AddItemToInventory(itemData, count)`
+2. 确保场景中有 PlayerConsumableController 组件
 3. 配置 PlayerConsumableController 的关键词设置
-4. 运行游戏：拾取物品 → 按1/2键直接使用 → 物品消失
+4. 运行游戏：按1/2键直接使用背包中的消耗品 → 物品消失
 
 ## 注意事项
 

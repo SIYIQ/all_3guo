@@ -31,8 +31,8 @@
 - **修改**: 添加了 `UpdateWeaponStats()` 方法
 - **功能**: 实时更新武器状态栏（攻击力、范围、冷却时间）
 
-#### InventoryDemoBootstrap.cs
-- **修改**: 添加了 WeaponSystemBridge 和 TestWeaponIntegration 的初始化
+#### 场景设置
+- 需要手动在场景中添加 WeaponSystemBridge 和 TestWeaponIntegration 组件
 
 ### 3. 测试组件
 
@@ -58,7 +58,7 @@ sword.weaponData = Resources.Load<WeaponData>("GuanDao");
 ```
 
 ### 3. 运行测试
-1. 在场景中添加 InventoryDemoBootstrap 组件
+1. 在场景中添加 WeaponSystemBridge 和 TestWeaponIntegration 组件
 2. 运行游戏，按 I 键打开背包
 3. 将 Sword 物品拖拽到武器装备槽中
 4. 观察武器状态栏的实时更新
