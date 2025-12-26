@@ -60,33 +60,80 @@ public class InventoryUI : MonoBehaviour
 
     void Start()
     {
-        if (inventoryRoot != null) inventoryRoot.SetActive(false);
+        Debug.Log("InventoryUI: Starting initialization...");
+
+        // 检查inventoryRoot
+        if (inventoryRoot == null)
+        {
+            Debug.LogError("InventoryUI: inventoryRoot is not assigned! Please assign it in the Inspector.");
+            return;
+        }
+
+        inventoryRoot.SetActive(false);
+        Debug.Log("InventoryUI: inventoryRoot found and hidden");
+
         CreateGridSlots();
-        if (tabEquipButton != null) tabEquipButton.onClick.AddListener(() => SwitchTab(Tab.Equipment));
-        if (tabConsumableButton != null) tabConsumableButton.onClick.AddListener(() => SwitchTab(Tab.Consumables));
-        // Attempt to load persistent ItemData assets from Resources if none assigned
+        Debug.Log($"InventoryUI: Created {gridSlots.Count} grid slots");
+
+        // 设置标签按钮
+        if (tabEquipButton != null)
+        {
+            tabEquipButton.onClick.AddListener(() => SwitchTab(Tab.Equipment));
+            Debug.Log("InventoryUI: Equipment tab button configured");
+        }
+        else
+        {
+            Debug.LogWarning("InventoryUI: tabEquipButton is not assigned");
+        }
+
+        if (tabConsumableButton != null)
+        {
+            tabConsumableButton.onClick.AddListener(() => SwitchTab(Tab.Consumables));
+            Debug.Log("InventoryUI: Consumable tab button configured");
+        }
+        else
+        {
+            Debug.LogWarning("InventoryUI: tabConsumableButton is not assigned");
+        }
+
+        // 尝试加载物品数据
         if ((inventoryItems == null || inventoryItems.Count == 0))
         {
             var loaded = Resources.LoadAll<ItemData>("Inventory/Items");
             if (loaded != null && loaded.Length > 0)
             {
                 inventoryItems = new List<ItemData>(loaded);
+                Debug.Log($"InventoryUI: Loaded {loaded.Length} items from Resources");
+            }
+            else
+            {
+                inventoryItems = new List<ItemData>();
+                Debug.Log("InventoryUI: No items loaded from Resources");
             }
         }
+        else
+        {
+            Debug.Log($"InventoryUI: Using {inventoryItems.Count} pre-assigned items");
+        }
+
         RefreshGrid();
         UpdateTabVisuals();
-        // Apply layout tweaks so bars and portrait fit design
         ApplyLayoutTweaks();
 
         // 订阅武器系统事件
         if (WeaponSystemBridge.Instance != null)
         {
-            // OnWeaponEquipped 是 UnityEvent<WeaponData>，需要带参数的回调签名。
-            // 使用 lambda 忽略参数并调用无参的 UpdateWeaponStats。
             WeaponSystemBridge.Instance.OnWeaponEquipped.AddListener((WeaponData wd) => UpdateWeaponStats());
             WeaponSystemBridge.Instance.OnWeaponUnequipped.AddListener(UpdateWeaponStats);
-            UpdateWeaponStats(); // 初始化状态栏
+            UpdateWeaponStats();
+            Debug.Log("InventoryUI: Weapon system events subscribed");
         }
+        else
+        {
+            Debug.LogWarning("InventoryUI: WeaponSystemBridge.Instance is null, weapon stats won't update");
+        }
+
+        Debug.Log("InventoryUI: Initialization complete. Press I to toggle inventory.");
     }
 
     // Public: adjust status bar positions/sizes and portrait size to match design request
@@ -128,6 +175,7 @@ public class InventoryUI : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.I))
         {
+            Debug.Log("InventoryUI: I key pressed, toggling inventory");
             ToggleInventory();
         }
     }
@@ -142,9 +190,14 @@ public class InventoryUI : MonoBehaviour
 
     void ToggleInventory()
     {
-        if (inventoryRoot == null) return;
+        if (inventoryRoot == null)
+        {
+            Debug.LogError("InventoryUI: inventoryRoot is null! Make sure to assign the inventory root GameObject in the Inspector.");
+            return;
+        }
         bool show = !inventoryRoot.activeSelf;
         inventoryRoot.SetActive(show);
+        Debug.Log($"InventoryUI: Inventory {(show ? "opened" : "closed")}, activeTab: {activeTab}");
         if (show)
         {
             // default to Equipment tab when opened

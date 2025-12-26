@@ -46,10 +46,35 @@
 
 ## 使用说明
 
-1. 通过代码向背包添加物品：`inventoryUI.AddItemToInventory(itemData, count)`
-2. 确保场景中有 PlayerConsumableController 组件
-3. 配置 PlayerConsumableController 的关键词设置
-4. 运行游戏：按1/2键直接使用背包中的消耗品 → 物品消失
+### 快速设置背包UI
+1. 在场景中创建一个空对象，命名为"InventorySetup"
+2. 添加 `InventorySetupWizard` 组件
+3. 按Play运行，脚本会自动创建完整的背包UI
+4. 或者手动创建UI组件并在Inspector中赋值
+
+### 添加物品到背包
+通过代码添加物品：
+```csharp
+InventoryUI inventoryUI = FindObjectOfType<InventoryUI>();
+inventoryUI.AddItemToInventory(itemData, count);
+```
+
+### 测试背包功能
+1. 添加 `InventoryTestHelper` 组件到场景中
+2. 在Inspector中为 `testItem` 赋值一个ItemData
+3. 运行游戏：
+   - 按 `I` 键切换背包显示
+   - 按 `T` 键添加测试物品
+   - 按 `Y` 键强制显示背包
+   - 按 `U` 键强制隐藏背包
+   - 按 `1` 键使用HP药水
+   - 按 `2` 键使用MP药水
+
+### 背包功能说明
+- **装备系统**：拖拽武器/装备到对应槽位
+- **消耗品使用**：按1/2键直接使用背包中的消耗品
+- **标签切换**：点击标签按钮切换装备/消耗品视图
+- **武器集成**：装备武器后状态栏实时更新
 
 ## 注意事项
 
