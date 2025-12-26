@@ -1,75 +1,78 @@
 using UnityEngine;
 
 /// <summary>
-/// 映射按键使用装备在消耗品槽中的道具。
-/// 按键1使用消耗品槽A，按键2使用消耗品槽B。
-/// 只有装备在道具槽中的消耗品才能被使用，使用后自动从槽位消失。
-/// 依赖 PlayerCollector 与 InventoryUI 的接口：ConsumeItem / AddHP / AddMP。
+/// 简化的消耗品使用系统。
+/// 按键1使用红药水类消耗品，按键2使用蓝药水类消耗品。
+/// 直接从背包中查找并消耗匹配的消耗品，不需要装备到道具槽。
 /// </summary>
 public class PlayerConsumableController : MonoBehaviour
 {
-    public KeyCode slotAKey = KeyCode.Alpha1;
-    public KeyCode slotBKey = KeyCode.Alpha2;
+    [Header("消耗品类型配置")]
+    public string hpPotionKeyword = "HP"; // 按键1使用的HP药水关键词
+    public string mpPotionKeyword = "MP"; // 按键2使用的MP药水关键词
 
-    private PlayerCollector collector;
+    public KeyCode hpPotionKey = KeyCode.Alpha1;
+    public KeyCode mpPotionKey = KeyCode.Alpha2;
+
     private InventoryUI inventoryUI;
 
     void Start()
     {
-        collector = GetComponent<PlayerCollector>();
-        if (collector == null)
-        {
-            collector = FindObjectOfType<PlayerCollector>();
-        }
-        inventoryUI = collector != null ? collector.inventoryUI : FindObjectOfType<InventoryUI>();
+        inventoryUI = FindObjectOfType<InventoryUI>();
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(slotAKey))
+        if (Input.GetKeyDown(hpPotionKey))
         {
-            TryUseConsumableSlot(inventoryUI.consumableSlotA);
+            UseConsumableByKeyword(hpPotionKeyword);
         }
-        if (Input.GetKeyDown(slotBKey))
+        if (Input.GetKeyDown(mpPotionKey))
         {
-            TryUseConsumableSlot(inventoryUI.consumableSlotB);
+            UseConsumableByKeyword(mpPotionKeyword);
         }
     }
 
-    private void TryUseConsumableSlot(EquipSlot slot)
+    private void UseConsumableByKeyword(string keyword)
     {
-        if (slot == null || slot.CurrentItem == null)
+        if (inventoryUI == null || string.IsNullOrEmpty(keyword))
         {
-            Debug.Log("PlayerConsumableController: 道具槽为空或不存在");
             return;
         }
 
-        ItemData item = slot.CurrentItem;
-        if (item.itemType != ItemType.Consumable)
+        // 在背包中查找匹配的消耗品
+        ItemData foundItem = null;
+        foreach (var item in inventoryUI.inventoryItems)
         {
-            Debug.LogWarning("PlayerConsumableController: 道具槽中不是消耗品");
+            if (item != null && item.itemType == ItemType.Consumable &&
+                item.itemName.ToLower().Contains(keyword.ToLower()))
+            {
+                foundItem = item;
+                break;
+            }
+        }
+
+        if (foundItem == null)
+        {
+            Debug.Log($"背包中没有找到包含 '{keyword}' 的消耗品");
             return;
         }
 
-        // 使用道具并应用效果
-        if (inventoryUI != null)
+        // 使用消耗品
+        if (foundItem.restoreHP > 0)
         {
-            // 应用恢复效果
-            if (item.restoreHP > 0)
-            {
-                inventoryUI.AddHP(item.restoreHP);
-                Debug.Log($"Used {item.itemName}, restored HP {item.restoreHP}");
-            }
-            if (item.restoreMP > 0)
-            {
-                inventoryUI.AddMP(item.restoreMP);
-                Debug.Log($"Used {item.itemName}, restored MP {item.restoreMP}");
-            }
-
-            // 消耗道具：清空槽位
-            slot.SetItem(null);
-            Debug.Log($"PlayerConsumableController: 消耗了装备在道具槽中的 {item.itemName}，槽位已清空");
+            inventoryUI.AddHP(foundItem.restoreHP);
+            Debug.Log($"使用 {foundItem.itemName}，恢复 HP {foundItem.restoreHP}");
         }
+        if (foundItem.restoreMP > 0)
+        {
+            inventoryUI.AddMP(foundItem.restoreMP);
+            Debug.Log($"使用 {foundItem.itemName}，恢复 MP {foundItem.restoreMP}");
+        }
+
+        // 从背包中移除消耗品
+        inventoryUI.RemoveItemFromInventory(foundItem, 1);
+        Debug.Log($"从背包中消耗了 {foundItem.itemName}");
     }
 }
 
