@@ -33,15 +33,51 @@ public class PlayerCollector : MonoBehaviour
     public bool ConsumeItem(ItemData item, int amount)
     {
         if (item == null || amount <= 0) return false;
-        // 简单检查：是否存在足够数量
+        // 简单检查：先统计背包中的数量
         int have = 0;
-        foreach (var it in inventoryUI.inventoryItems)
+        if (inventoryUI != null && inventoryUI.inventoryItems != null)
         {
-            if (it == item) have++;
+            foreach (var it in inventoryUI.inventoryItems)
+            {
+                if (it == item) have++;
+            }
         }
-        if (have < amount) return false;
 
-        inventoryUI.RemoveItemFromInventory(item, amount);
+        int needed = amount;
+        // 先从背包移除可用数量
+        if (have > 0)
+        {
+            int take = Mathf.Min(have, needed);
+            inventoryUI.RemoveItemFromInventory(item, take);
+            needed -= take;
+        }
+
+        // 如果还需要，从已装备的消耗槽里消耗（consumableSlotA/consumableSlotB）
+        if (needed > 0 && inventoryUI != null)
+        {
+            if (inventoryUI.consumableSlotA != null && inventoryUI.consumableSlotA.CurrentItem == item)
+            {
+                inventoryUI.consumableSlotA.SetItem(null);
+                needed = Mathf.Max(0, needed - 1);
+            }
+            if (needed > 0 && inventoryUI.consumableSlotB != null && inventoryUI.consumableSlotB.CurrentItem == item)
+            {
+                inventoryUI.consumableSlotB.SetItem(null);
+                needed = Mathf.Max(0, needed - 1);
+            }
+        }
+
+        if (needed > 0)
+        {
+            // 未能满足数量，回滚（把之前从背包移除的数量还回去）
+            if (amount - needed > 0)
+            {
+                inventoryUI.AddItemToInventory(item, amount - needed);
+            }
+            Debug.Log($"PlayerCollector: Not enough items to consume {item.itemName}");
+            return false;
+        }
+
         Debug.Log($"PlayerCollector: Consumed {item.itemName} x{amount}");
         return true;
     }

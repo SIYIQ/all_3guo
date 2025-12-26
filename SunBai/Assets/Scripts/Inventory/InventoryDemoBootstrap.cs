@@ -214,8 +214,13 @@ public class InventoryDemoBootstrap : MonoBehaviour
     void SpawnTestPickups()
     {
         // 尝试加载 ItemData 资源（Resources/Inventory/Items 下）
-        ItemData potion = Resources.Load<ItemData>("Inventory/Items/Potion");
+        // 优先加载专用的 RedPotion / BluePotion，如果不存在再回退到旧的 Potion 资源
+        ItemData redPotion = Resources.Load<ItemData>("Inventory/Items/RedPotion");
+        ItemData bluePotion = Resources.Load<ItemData>("Inventory/Items/BluePotion");
+        ItemData genericPotion = Resources.Load<ItemData>("Inventory/Items/Potion");
         ItemData sword = Resources.Load<ItemData>("Inventory/Items/Sword");
+
+        ItemData potion = redPotion != null ? redPotion : (bluePotion != null ? bluePotion : genericPotion);
 
         // 如果没有找到资源，记录日志并返回
         if (potion == null && sword == null)
@@ -226,8 +231,9 @@ public class InventoryDemoBootstrap : MonoBehaviour
 
         // 放置位置（相对于世界原点，便于主角走动测试）
         Vector3 basePos = new Vector3(2f, 0.5f, 0f);
-        CreatePickupAt(potion, 2, basePos + Vector3.right * 0f);
-        CreatePickupAt(potion, 1, basePos + Vector3.right * 1.5f);
+        // 第一个为小红瓶（若存在），第二个为小蓝瓶（若存在），否则都使用 generic potion
+        CreatePickupAt(redPotion != null ? redPotion : potion, 2, basePos + Vector3.right * 0f);
+        CreatePickupAt(bluePotion != null ? bluePotion : potion, 1, basePos + Vector3.right * 1.5f);
         CreatePickupAt(sword, 1, basePos + Vector3.right * 3f);
     }
 
