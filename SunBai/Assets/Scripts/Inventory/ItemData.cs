@@ -17,6 +17,11 @@ public class ItemData : ScriptableObject
 
     // 武器相关数据（仅在 itemType == Weapon 时使用）
     public WeaponData weaponData;
+    
+    // 可消耗道具的数值（仅在 itemType == Consumable 时使用）
+    [Header("Consumable")]
+    public int restoreHP = 0;
+    public int restoreMP = 0;
 }
 
 

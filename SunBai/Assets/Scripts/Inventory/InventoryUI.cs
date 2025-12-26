@@ -313,17 +313,28 @@ public class InventoryUI : MonoBehaviour
 
     public void RefreshGrid()
     {
-        // 聚合相同 ItemData 的数量，便于显示数量（堆叠）
-        Dictionary<ItemData, int> counts = new Dictionary<ItemData, int>();
-        foreach (var it in inventoryItems)
+        // 按照 inventoryItems 的顺序聚合相同 ItemData（保留顺序，确保同类堆叠连续显示）
+        List<KeyValuePair<ItemData, int>> entries = new List<KeyValuePair<ItemData, int>>();
+        Dictionary<ItemData, int> indexMap = new Dictionary<ItemData, int>();
+        for (int i = 0; i < inventoryItems.Count; i++)
         {
+            var it = inventoryItems[i];
             if (it == null) continue;
             if (activeTab == Tab.Equipment && !(it.itemType == ItemType.Weapon || it.itemType == ItemType.Gear)) continue;
             if (activeTab == Tab.Consumables && it.itemType != ItemType.Consumable) continue;
-            if (counts.ContainsKey(it)) counts[it]++; else counts[it] = 1;
-        }
 
-        var entries = new List<KeyValuePair<ItemData, int>>(counts);
+            if (indexMap.TryGetValue(it, out int idx))
+            {
+                var kv = entries[idx];
+                kv = new KeyValuePair<ItemData, int>(kv.Key, kv.Value + 1);
+                entries[idx] = kv;
+            }
+            else
+            {
+                indexMap[it] = entries.Count;
+                entries.Add(new KeyValuePair<ItemData, int>(it, 1));
+            }
+        }
 
         for (int i = 0; i < gridSlots.Count; i++)
         {
@@ -344,7 +355,14 @@ public class InventoryUI : MonoBehaviour
     {
         if (item == null || count <= 0) return;
         for (int i = 0; i < count; i++)
-            inventoryItems.Add(item);
+        {
+            // 如果已有同类物品，则插入到最后一个同类物品后面以保持分组
+            int lastIndex = inventoryItems.LastIndexOf(item);
+            if (lastIndex >= 0)
+                inventoryItems.Insert(lastIndex + 1, item);
+            else
+                inventoryItems.Add(item);
+        }
         RefreshGrid();
     }
 
