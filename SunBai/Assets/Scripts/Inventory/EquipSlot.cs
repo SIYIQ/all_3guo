@@ -38,7 +38,7 @@ public class EquipSlot : MonoBehaviour, IDropHandler, IPointerClickHandler
                 }
                 else
                 {
-                    nameText.text = \"\";
+                    nameText.text = "";
                 }
             }
         }
