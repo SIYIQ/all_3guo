@@ -42,7 +42,23 @@ public class PlayerCollector : MonoBehaviour
             // 如果是消耗品，打开背包并切换到 Consumables 标签以便立即查看
             if (pickup.item.itemType == ItemType.Consumable)
             {
-                inventoryUI.OpenConsumablesTab();
+                // 尝试自动装备到空的 consumable 槽（优先 A）
+                if (inventoryUI != null)
+                {
+                    if (inventoryUI.consumableSlotA != null && inventoryUI.consumableSlotA.CurrentItem == null)
+                    {
+                        inventoryUI.EquipItemToSlot(pickup.item, inventoryUI.consumableSlotA, null);
+                    }
+                    else if (inventoryUI.consumableSlotB != null && inventoryUI.consumableSlotB.CurrentItem == null)
+                    {
+                        inventoryUI.EquipItemToSlot(pickup.item, inventoryUI.consumableSlotB, null);
+                    }
+                    else
+                    {
+                        // 如果都已满，则打开消耗品标签以便手动管理
+                        inventoryUI.OpenConsumablesTab();
+                    }
+                }
             }
             Destroy(pickup.gameObject);
         }
@@ -119,7 +135,21 @@ public class PlayerCollector : MonoBehaviour
         Debug.Log($"PlayerCollector: Proximity picked up {pickup.item.itemName} x{pickup.amount}");
         if (pickup.item.itemType == ItemType.Consumable)
         {
-            inventoryUI.OpenConsumablesTab();
+            if (inventoryUI != null)
+            {
+                if (inventoryUI.consumableSlotA != null && inventoryUI.consumableSlotA.CurrentItem == null)
+                {
+                    inventoryUI.EquipItemToSlot(pickup.item, inventoryUI.consumableSlotA, null);
+                }
+                else if (inventoryUI.consumableSlotB != null && inventoryUI.consumableSlotB.CurrentItem == null)
+                {
+                    inventoryUI.EquipItemToSlot(pickup.item, inventoryUI.consumableSlotB, null);
+                }
+                else
+                {
+                    inventoryUI.OpenConsumablesTab();
+                }
+            }
         }
         // 先将对象设为不可见/不可交互，避免在同一帧内重复处理
         pickup.gameObject.SetActive(false);
