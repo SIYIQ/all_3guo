@@ -92,7 +92,15 @@ public class WeaponSystemBridge : MonoBehaviour
             if (equipMethod != null)
             {
                 equipMethod.Invoke(playerCombatComponent, new object[] { weaponData });
+                Debug.Log($"WeaponSystemBridge: EquipWeapon invoked for '{(weaponData != null ? weaponData.displayName : "null")}'");
                 OnWeaponEquipped?.Invoke(weaponData);
+                // 输出当前攻击力以便调试（如果可用）
+                try
+                {
+                    int ap = GetCurrentAttackPower();
+                    Debug.Log($\"WeaponSystemBridge: CurrentAttackPower = {ap}\");
+                }
+                catch { }
                 return true;
             }
             else
@@ -125,6 +133,7 @@ public class WeaponSystemBridge : MonoBehaviour
             if (unequipMethod != null)
             {
                 unequipMethod.Invoke(playerCombatComponent, null);
+                Debug.Log(\"WeaponSystemBridge: UnequipWeapon invoked\");
                 OnWeaponUnequipped?.Invoke();
             }
             else

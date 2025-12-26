@@ -108,6 +108,9 @@ public class InventoryDemoBootstrap : MonoBehaviour
         hp.SetValue(80f, 100f);
         mp.SetValue(40f, 100f);
         atk.SetValue(30f, 100f);
+        // 绑定 hp/mp 到 InventoryUI，以便后续通过接口修改
+        inventoryUI.hpBar = hp;
+        inventoryUI.mpBar = mp;
 
         // 武器状态栏（添加到 InventoryUI）
         inventoryUI.attackBar = CreateStatusBar(statusArea.transform, "攻击力", Color.red);

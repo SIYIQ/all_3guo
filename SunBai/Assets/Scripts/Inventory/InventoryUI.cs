@@ -37,6 +37,15 @@ public class InventoryUI : MonoBehaviour
     public StatusBar attackBar;
     public StatusBar rangeBar;
     public StatusBar cooldownBar;
+    // 可变的生命/魔法条（供技能系统/物品修改）
+    public StatusBar hpBar;
+    public StatusBar mpBar;
+
+    // 可配置的当前生命/魔法值
+    public float currentHP = 100f;
+    public float maxHP = 100f;
+    public float currentMP = 50f;
+    public float maxMP = 50f;
 
     [Header("Layout Tweaks")]
     public float barsYOffset = -100f; // downward offset applied to all three bars
@@ -342,7 +351,9 @@ public class InventoryUI : MonoBehaviour
         if (attackBar != null)
         {
             int attackPower = WeaponSystemBridge.Instance.GetCurrentAttackPower();
-            attackBar.SetValue(attackPower, 100f); // 假设最大值为100
+            // 根据当前值自动计算一个合理的最大值，确保条的变化可见
+            float attackMax = Mathf.Max(10f, attackPower * 1.5f,  (float)attackPower + 10f);
+            attackBar.SetValue(attackPower, attackMax);
             attackBar.SetLabel($"攻击力: {attackPower}");
         }
 
@@ -350,7 +361,8 @@ public class InventoryUI : MonoBehaviour
         if (rangeBar != null)
         {
             float attackRange = WeaponSystemBridge.Instance.GetCurrentAttackRange();
-            rangeBar.SetValue(attackRange, 5f); // 假设最大值为5
+            float rangeMax = Mathf.Max(1f, attackRange * 1.2f, 3f);
+            rangeBar.SetValue(attackRange, rangeMax);
             rangeBar.SetLabel($"攻击范围: {attackRange:F1}");
         }
 
@@ -358,9 +370,55 @@ public class InventoryUI : MonoBehaviour
         if (cooldownBar != null)
         {
             float attackCooldown = WeaponSystemBridge.Instance.GetCurrentAttackCooldown();
-            cooldownBar.SetValue(2f - attackCooldown, 2f); // 反向显示，越低越好
+            // 以冷却上限为基准，冷却越低数值越高显示越满
+            float cooldownMax = Mathf.Max(0.5f, attackCooldown * 2f, 2f);
+            cooldownBar.SetValue(cooldownMax - attackCooldown, cooldownMax);
             cooldownBar.SetLabel($"攻击冷却: {attackCooldown:F1}s");
         }
+        // 更新 HP/MP 显示（如果存在）
+        if (hpBar != null)
+        {
+            hpBar.SetValue(currentHP, Mathf.Max(1f, maxHP));
+            hpBar.SetLabel($"HP: {currentHP}/{maxHP}");
+        }
+        if (mpBar != null)
+        {
+            mpBar.SetValue(currentMP, Mathf.Max(1f, maxMP));
+            mpBar.SetLabel($"MP: {currentMP}/{maxMP}");
+        }
+    }
+
+    // 以下为 HP/MP 的公开接口，供技能/消耗品调用
+    public void SetHP(float cur, float max)
+    {
+        maxHP = Mathf.Max(1f, max);
+        currentHP = Mathf.Clamp(cur, 0f, maxHP);
+        if (hpBar != null)
+        {
+            hpBar.SetValue(currentHP, maxHP);
+            hpBar.SetLabel($"HP: {currentHP}/{maxHP}");
+        }
+    }
+
+    public void SetMP(float cur, float max)
+    {
+        maxMP = Mathf.Max(1f, max);
+        currentMP = Mathf.Clamp(cur, 0f, maxMP);
+        if (mpBar != null)
+        {
+            mpBar.SetValue(currentMP, maxMP);
+            mpBar.SetLabel($"MP: {currentMP}/{maxMP}");
+        }
+    }
+
+    public void AddHP(float delta)
+    {
+        SetHP(currentHP + delta, maxHP);
+    }
+
+    public void AddMP(float delta)
+    {
+        SetMP(currentMP + delta, maxMP);
     }
 }
 
