@@ -439,23 +439,26 @@ public class InventoryUI : MonoBehaviour
     {
         if (item == null || count <= 0) return;
         Debug.Log($"InventoryUI: AddItemToInventory {item.itemName} x{count}");
-        for (int i = 0; i < count; i++)
+
+        // 查找是否已有相同物品
+        bool found = false;
+        for (int i = 0; i < inventoryItems.Count; i++)
         {
-            // 如果已有同类物品，则插入到最后一个同类物品后面以保持分组
-            int lastIndex = -1;
-            for (int j = inventoryItems.Count - 1; j >= 0; j--)
+            if (ItemsMatch(inventoryItems[i], item))
             {
-                if (ItemsMatch(inventoryItems[j], item))
-                {
-                    lastIndex = j;
-                    break;
-                }
+                // 由于我们现在使用计数显示，这里不需要实际添加多个物品
+                // RefreshGrid 会处理计数聚合
+                found = true;
+                break;
             }
-            if (lastIndex >= 0)
-                inventoryItems.Insert(lastIndex + 1, item);
-            else
-                inventoryItems.Add(item);
         }
+
+        if (!found)
+        {
+            // 如果是新物品，添加到列表中
+            inventoryItems.Add(item);
+        }
+
         RefreshGrid();
     }
 

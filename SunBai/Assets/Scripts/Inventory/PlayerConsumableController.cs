@@ -1,21 +1,15 @@
 using UnityEngine;
 
 /// <summary>
-/// 映射按键使用消耗品（例如小红瓶、小蓝瓶）。
-/// 将对应 ItemData 拖到 Inspector（redPotion/bluePotion），运行时按键触发消耗并应用回复效果。
+/// 映射按键使用装备在消耗品槽中的道具。
+/// 按键1使用消耗品槽A，按键2使用消耗品槽B。
+/// 只有装备在道具槽中的消耗品才能被使用，使用后自动从槽位消失。
 /// 依赖 PlayerCollector 与 InventoryUI 的接口：ConsumeItem / AddHP / AddMP。
 /// </summary>
 public class PlayerConsumableController : MonoBehaviour
 {
-    public ItemData redPotion;
-    public ItemData bluePotion;
-
-    public KeyCode redKey = KeyCode.Alpha1;
-    public KeyCode blueKey = KeyCode.Alpha2;
-
-    // 备用值：如果 ItemData.restoreHP/restoreMP 没设定，则使用这里的值
-    public int redFallbackHeal = 50;
-    public int blueFallbackHeal = 30;
+    public KeyCode slotAKey = KeyCode.Alpha1;
+    public KeyCode slotBKey = KeyCode.Alpha2;
 
     private PlayerCollector collector;
     private InventoryUI inventoryUI;
@@ -32,51 +26,49 @@ public class PlayerConsumableController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(redKey))
+        if (Input.GetKeyDown(slotAKey))
         {
-            TryUseConsumable(redPotion, true);
+            TryUseConsumableSlot(inventoryUI.consumableSlotA);
         }
-        if (Input.GetKeyDown(blueKey))
+        if (Input.GetKeyDown(slotBKey))
         {
-            TryUseConsumable(bluePotion, false);
+            TryUseConsumableSlot(inventoryUI.consumableSlotB);
         }
     }
 
-    private void TryUseConsumable(ItemData item, bool isRed)
+    private void TryUseConsumableSlot(EquipSlot slot)
     {
-        if (item == null)
+        if (slot == null || slot.CurrentItem == null)
         {
-            Debug.LogWarning("PlayerConsumableController: 没有绑定对应的道具 ItemData");
-            return;
-        }
-        if (collector == null)
-        {
-            Debug.LogWarning("PlayerConsumableController: 找不到 PlayerCollector");
+            Debug.Log("PlayerConsumableController: 道具槽为空或不存在");
             return;
         }
 
-        bool ok = collector.ConsumeItem(item, 1);
-        if (!ok)
+        ItemData item = slot.CurrentItem;
+        if (item.itemType != ItemType.Consumable)
         {
-            Debug.Log("PlayerConsumableController: 背包中没有足够的该道具");
+            Debug.LogWarning("PlayerConsumableController: 道具槽中不是消耗品");
             return;
         }
 
-        // 应用恢复效果（优先使用 ItemData 的数值）
+        // 使用道具并应用效果
         if (inventoryUI != null)
         {
-            if (isRed)
+            // 应用恢复效果
+            if (item.restoreHP > 0)
             {
-                int heal = item != null && item.restoreHP > 0 ? item.restoreHP : redFallbackHeal;
-                inventoryUI.AddHP(heal);
-                Debug.Log($"Used {item.itemName}, restored HP {heal}");
+                inventoryUI.AddHP(item.restoreHP);
+                Debug.Log($"Used {item.itemName}, restored HP {item.restoreHP}");
             }
-            else
+            if (item.restoreMP > 0)
             {
-                int heal = item != null && item.restoreMP > 0 ? item.restoreMP : blueFallbackHeal;
-                inventoryUI.AddMP(heal);
-                Debug.Log($"Used {item.itemName}, restored MP {heal}");
+                inventoryUI.AddMP(item.restoreMP);
+                Debug.Log($"Used {item.itemName}, restored MP {item.restoreMP}");
             }
+
+            // 消耗道具：清空槽位
+            slot.SetItem(null);
+            Debug.Log($"PlayerConsumableController: 消耗了装备在道具槽中的 {item.itemName}，槽位已清空");
         }
     }
 }

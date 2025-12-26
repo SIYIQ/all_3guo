@@ -37,29 +37,10 @@ public class PlayerCollector : MonoBehaviour
         var pickup = other.GetComponent<ItemPickup>();
         if (pickup != null && pickup.item != null)
         {
-            inventoryUI.AddItemToInventory(pickup.item, pickup.amount);
-            Debug.Log($"PlayerCollector: Picked up {pickup.item.itemName} x{pickup.amount}");
-            // 如果是消耗品，打开背包并切换到 Consumables 标签以便立即查看
-            if (pickup.item.itemType == ItemType.Consumable)
-            {
-                // 尝试自动装备到空的 consumable 槽（优先 A）
-                if (inventoryUI != null)
-                {
-                    if (inventoryUI.consumableSlotA != null && inventoryUI.consumableSlotA.CurrentItem == null)
-                    {
-                        inventoryUI.EquipItemToSlot(pickup.item, inventoryUI.consumableSlotA, null);
-                    }
-                    else if (inventoryUI.consumableSlotB != null && inventoryUI.consumableSlotB.CurrentItem == null)
-                    {
-                        inventoryUI.EquipItemToSlot(pickup.item, inventoryUI.consumableSlotB, null);
-                    }
-                    else
-                    {
-                        // 如果都已满，则打开消耗品标签以便手动管理
-                        inventoryUI.OpenConsumablesTab();
-                    }
-                }
-            }
+        inventoryUI.AddItemToInventory(pickup.item, pickup.amount);
+        Debug.Log($"PlayerCollector: Picked up {pickup.item.itemName} x{pickup.amount}");
+        // 物品直接添加到背包，不自动装备到道具槽
+        // 玩家需要手动从背包中装备消耗品到道具槽
             Destroy(pickup.gameObject);
         }
     }
@@ -133,24 +114,7 @@ public class PlayerCollector : MonoBehaviour
 
         inventoryUI.AddItemToInventory(pickup.item, pickup.amount);
         Debug.Log($"PlayerCollector: Proximity picked up {pickup.item.itemName} x{pickup.amount}");
-        if (pickup.item.itemType == ItemType.Consumable)
-        {
-            if (inventoryUI != null)
-            {
-                if (inventoryUI.consumableSlotA != null && inventoryUI.consumableSlotA.CurrentItem == null)
-                {
-                    inventoryUI.EquipItemToSlot(pickup.item, inventoryUI.consumableSlotA, null);
-                }
-                else if (inventoryUI.consumableSlotB != null && inventoryUI.consumableSlotB.CurrentItem == null)
-                {
-                    inventoryUI.EquipItemToSlot(pickup.item, inventoryUI.consumableSlotB, null);
-                }
-                else
-                {
-                    inventoryUI.OpenConsumablesTab();
-                }
-            }
-        }
+        // 物品直接添加到背包，不自动装备到道具槽
         // 先将对象设为不可见/不可交互，避免在同一帧内重复处理
         pickup.gameObject.SetActive(false);
         Destroy(pickup.gameObject);
@@ -163,48 +127,6 @@ public class PlayerCollector : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, proximityPickupRadius);
     }
 
-    /// <summary>
-    /// 消耗物品（由玩家脚本或 UI 调用）
-    /// </summary>
-    public bool ConsumeItem(ItemData item, int amount)
-    {
-        // 严格逻辑：只允许从已装备的 consumable 槽位消耗，背包内物品必须先装备到槽位才能被使用
-        if (item == null || amount <= 0) return false;
-
-        if (inventoryUI == null)
-        {
-            Debug.LogWarning("PlayerCollector: inventoryUI 未绑定，无法消耗道具");
-            return false;
-        }
-
-        int available = 0;
-        if (inventoryUI.consumableSlotA != null && InventoryUI.ItemsMatch(inventoryUI.consumableSlotA.CurrentItem, item)) available++;
-        if (inventoryUI.consumableSlotB != null && InventoryUI.ItemsMatch(inventoryUI.consumableSlotB.CurrentItem, item)) available++;
-
-        if (available < amount)
-        {
-            Debug.Log($"PlayerCollector: Not enough equipped consumables to consume {item.itemName}");
-            return false;
-        }
-
-        int toConsume = amount;
-        // 优先从 consumableSlotA 然后 consumableSlotB 消耗
-        if (inventoryUI.consumableSlotA != null && InventoryUI.ItemsMatch(inventoryUI.consumableSlotA.CurrentItem, item) && toConsume > 0)
-        {
-            inventoryUI.consumableSlotA.SetItem(null);
-            toConsume--;
-        }
-        if (inventoryUI.consumableSlotB != null && InventoryUI.ItemsMatch(inventoryUI.consumableSlotB.CurrentItem, item) && toConsume > 0)
-        {
-            inventoryUI.consumableSlotB.SetItem(null);
-            toConsume--;
-        }
-
-        // 刷新 UI 显示（槽位已被清空）
-        inventoryUI.RefreshGrid();
-        Debug.Log($"PlayerCollector: Consumed equipped {item.itemName} x{amount}");
-        return true;
-    }
 }
 
 
