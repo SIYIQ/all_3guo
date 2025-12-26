@@ -249,6 +249,20 @@ public class InventoryDemoBootstrap : MonoBehaviour
         slot.emptySprite = GenerateColoredSprite(Color.grey);
         // assign the inventoryUI reference so the slot can remove items from inventory list on drop
         slot.inventoryUI = inventoryUI;
+        // 创建名称文本（位于槽下方）
+        GameObject nameGO = CreateUIObject(\"Name\", go.transform);
+        RectTransform nameRt = nameGO.AddComponent<RectTransform>();
+        nameRt.anchorMin = new Vector2(0f, 0f);
+        nameRt.anchorMax = new Vector2(1f, 0f);
+        nameRt.pivot = new Vector2(0.5f, 1f);
+        nameRt.anchoredPosition = new Vector2(0f, -18f);
+        nameRt.sizeDelta = new Vector2(0f, 18f);
+        Text nameText = nameGO.AddComponent<Text>();
+        nameText.font = Resources.GetBuiltinResource<Font>(\"LegacyRuntime.ttf\");
+        nameText.alignment = TextAnchor.UpperCenter;
+        nameText.color = Color.white;
+        nameText.text = \"\";
+        slot.nameText = nameText;
         return slot;
     }
 
@@ -285,9 +299,21 @@ public class InventoryDemoBootstrap : MonoBehaviour
         var leFill = fillRt.gameObject.AddComponent<LayoutElement>();
         leFill.preferredWidth = 240f;
 
+        // 值文本（右侧）
+        GameObject valueGO = CreateUIObject("Value", go.transform);
+        RectTransform valueRt = valueGO.AddComponent<RectTransform>();
+        valueRt.sizeDelta = new Vector2(80f, 20f);
+        Text valueText = valueGO.AddComponent<Text>();
+        valueText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        valueText.color = Color.white;
+        valueText.alignment = TextAnchor.MiddleRight;
+        var leValue = valueGO.AddComponent<LayoutElement>();
+        leValue.preferredWidth = 80f;
+
         StatusBar sb = go.AddComponent<StatusBar>();
         sb.fillImage = fill;
         sb.labelText = t;
+        sb.valueText = valueText;
         return sb;
     }
 

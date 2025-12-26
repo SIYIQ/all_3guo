@@ -6,6 +6,7 @@ public class EquipSlot : MonoBehaviour, IDropHandler, IPointerClickHandler
 {
     public ItemType allowedType;
     public Image icon;
+    public Text nameText;
     public Sprite emptySprite;
     public InventoryUI inventoryUI;
 
@@ -16,8 +17,30 @@ public class EquipSlot : MonoBehaviour, IDropHandler, IPointerClickHandler
         CurrentItem = data;
         if (icon != null)
         {
-            icon.sprite = data != null ? data.icon : emptySprite;
-            icon.color = data != null ? Color.white : new Color(1f, 1f, 1f, 0.6f);
+            // 优先显示 ItemData.weaponData 的图标（如果存在），否则使用 ItemData.icon
+            Sprite displaySprite = null;
+            if (data != null && data.itemType == ItemType.Weapon && data.weaponData != null && data.weaponData.icon != null)
+                displaySprite = data.weaponData.icon;
+            else
+                displaySprite = data != null ? data.icon : null;
+
+            icon.sprite = displaySprite != null ? displaySprite : emptySprite;
+            icon.color = displaySprite != null ? Color.white : new Color(1f, 1f, 1f, 0.6f);
+            // 名称显示（如果存在）
+            if (nameText != null)
+            {
+                if (data != null)
+                {
+                    if (data.itemType == ItemType.Weapon && data.weaponData != null && !string.IsNullOrEmpty(data.weaponData.displayName))
+                        nameText.text = data.weaponData.displayName;
+                    else
+                        nameText.text = data.itemName;
+                }
+                else
+                {
+                    nameText.text = \"\";
+                }
+            }
         }
 
         // 如果是武器装备槽，通知武器系统

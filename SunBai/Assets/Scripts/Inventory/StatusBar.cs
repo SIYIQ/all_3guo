@@ -5,6 +5,7 @@ public class StatusBar : MonoBehaviour
 {
     public Image fillImage; // Should be Image type = Filled
     public Text labelText;
+    public Text valueText;
 
     public void SetValue(float current, float max)
     {
@@ -12,6 +13,8 @@ public class StatusBar : MonoBehaviour
         float ratio = Mathf.Clamp01(current / max);
         if (fillImage != null)
             fillImage.fillAmount = ratio;
+        if (valueText != null)
+            valueText.text = $"{current}/{max}";
     }
 
     public void SetLabel(string text)
