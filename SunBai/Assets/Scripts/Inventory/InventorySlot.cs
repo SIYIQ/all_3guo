@@ -49,8 +49,21 @@ public class InventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     void UpdateVisual()
     {
         if (icon == null) return;
-        icon.sprite = Item != null ? Item.icon : emptySprite;
-        icon.color = Item != null ? Color.white : new Color(1f, 1f, 1f, 0.6f);
+        // If item exists, prefer its icon; fallback to inventory's emptySlotSprite if available
+        Sprite spriteToShow = null;
+        if (Item != null)
+        {
+            if (Item.icon != null)
+                spriteToShow = Item.icon;
+            else if (parentUI != null && parentUI.emptySlotSprite != null)
+                spriteToShow = parentUI.emptySlotSprite;
+        }
+        else
+        {
+            spriteToShow = emptySprite;
+        }
+        icon.sprite = spriteToShow;
+        icon.color = (Item != null && spriteToShow != null) ? Color.white : new Color(1f, 1f, 1f, 0.6f);
         if (countText != null)
         {
             countText.text = (Item != null && Count > 1) ? Count.ToString() : "";
