@@ -16,3 +16,4 @@ MonoBehaviour:
   itemType: 0
   icon: {fileID: 21300000, guid: e218ad5d5bd37ca45899132e611fff97, type: 3}
   description: 
+  weaponData: {fileID: 11400000, guid: 4b80f86de4af8a245a9417594c996d40, type: 2}
