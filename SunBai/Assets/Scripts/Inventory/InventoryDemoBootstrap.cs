@@ -207,6 +207,48 @@ public class InventoryDemoBootstrap : MonoBehaviour
 
         // 添加武器集成测试脚本
         bridgeGO.AddComponent<TestWeaponIntegration>();
+        // 生成测试拾取物（运行时放在世界前方，便于调试）
+        SpawnTestPickups();
+    }
+
+    void SpawnTestPickups()
+    {
+        // 尝试加载 ItemData 资源（Resources/Inventory/Items 下）
+        ItemData potion = Resources.Load<ItemData>("Inventory/Items/Potion");
+        ItemData sword = Resources.Load<ItemData>("Inventory/Items/Sword");
+
+        // 如果没有找到资源，记录日志并返回
+        if (potion == null && sword == null)
+        {
+            Debug.LogWarning("SpawnTestPickups: 未找到 Potion 或 Sword 的 ItemData（Resources/Inventory/Items）");
+            return;
+        }
+
+        // 放置位置（相对于世界原点，便于主角走动测试）
+        Vector3 basePos = new Vector3(2f, 0.5f, 0f);
+        CreatePickupAt(potion, 2, basePos + Vector3.right * 0f);
+        CreatePickupAt(potion, 1, basePos + Vector3.right * 1.5f);
+        CreatePickupAt(sword, 1, basePos + Vector3.right * 3f);
+    }
+
+    void CreatePickupAt(ItemData item, int amount, Vector3 pos)
+    {
+        if (item == null) return;
+        GameObject go = new GameObject("Pickup_" + item.itemName);
+        go.transform.position = pos;
+        var pickup = go.AddComponent<ItemPickup>();
+        pickup.item = item;
+        pickup.amount = amount;
+        // 添加触发器碰撞体以便 PlayerCollector 检测（运行时创建）
+        var col = go.AddComponent<BoxCollider2D>();
+        col.isTrigger = true;
+        // 可选：添加一个可见的 SpriteRenderer 作为示意（使用 item.icon 如果存在）
+        if (item.icon != null)
+        {
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = item.icon;
+            sr.sortingOrder = 10;
+        }
     }
 
     void Update()
