@@ -132,6 +132,14 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    // Public helper: 打开背包并切换到消耗品标签
+    public void OpenConsumablesTab()
+    {
+        if (inventoryRoot == null) return;
+        if (!inventoryRoot.activeSelf) inventoryRoot.SetActive(true);
+        SwitchTab(Tab.Consumables);
+    }
+
     void ToggleInventory()
     {
         if (inventoryRoot == null) return;

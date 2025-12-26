@@ -23,6 +23,11 @@ public class PlayerCollector : MonoBehaviour
         {
             inventoryUI.AddItemToInventory(pickup.item, pickup.amount);
             Debug.Log($"PlayerCollector: Picked up {pickup.item.itemName} x{pickup.amount}");
+            // 如果是消耗品，打开背包并切换到 Consumables 标签以便立即查看
+            if (pickup.item.itemType == ItemType.Consumable)
+            {
+                inventoryUI.OpenConsumablesTab();
+            }
             Destroy(pickup.gameObject);
         }
     }
@@ -64,6 +69,8 @@ public class PlayerCollector : MonoBehaviour
             toConsume--;
         }
 
+        // 刷新 UI 显示（槽位已被清空）
+        inventoryUI.RefreshGrid();
         Debug.Log($"PlayerCollector: Consumed equipped {item.itemName} x{amount}");
         return true;
     }
