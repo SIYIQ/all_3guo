@@ -66,7 +66,9 @@ public class InventoryUI : MonoBehaviour
         // 订阅武器系统事件
         if (WeaponSystemBridge.Instance != null)
         {
-            WeaponSystemBridge.Instance.OnWeaponEquipped.AddListener(UpdateWeaponStats);
+            // OnWeaponEquipped 是 UnityEvent<WeaponData>，需要带参数的回调签名。
+            // 使用 lambda 忽略参数并调用无参的 UpdateWeaponStats。
+            WeaponSystemBridge.Instance.OnWeaponEquipped.AddListener((WeaponData wd) => UpdateWeaponStats());
             WeaponSystemBridge.Instance.OnWeaponUnequipped.AddListener(UpdateWeaponStats);
             UpdateWeaponStats(); // 初始化状态栏
         }
