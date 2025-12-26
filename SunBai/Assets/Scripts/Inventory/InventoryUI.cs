@@ -62,6 +62,14 @@ public class InventoryUI : MonoBehaviour
         UpdateTabVisuals();
         // Apply layout tweaks so bars and portrait fit design
         ApplyLayoutTweaks();
+
+        // 订阅武器系统事件
+        if (WeaponSystemBridge.Instance != null)
+        {
+            WeaponSystemBridge.Instance.OnWeaponEquipped.AddListener(UpdateWeaponStats);
+            WeaponSystemBridge.Instance.OnWeaponUnequipped.AddListener(UpdateWeaponStats);
+            UpdateWeaponStats(); // 初始化状态栏
+        }
     }
 
     // Public: adjust status bar positions/sizes and portrait size to match design request
@@ -319,6 +327,38 @@ public class InventoryUI : MonoBehaviour
         if (item == null) return;
         inventoryItems.Add(item);
         RefreshGrid();
+    }
+
+    /// <summary>
+    /// 更新武器状态栏显示
+    /// </summary>
+    public void UpdateWeaponStats()
+    {
+        if (WeaponSystemBridge.Instance == null) return;
+
+        // 更新攻击力状态栏
+        if (attackBar != null)
+        {
+            int attackPower = WeaponSystemBridge.Instance.GetCurrentAttackPower();
+            attackBar.SetValue(attackPower, 100f); // 假设最大值为100
+            attackBar.SetLabel($"攻击力: {attackPower}");
+        }
+
+        // 更新攻击范围状态栏
+        if (rangeBar != null)
+        {
+            float attackRange = WeaponSystemBridge.Instance.GetCurrentAttackRange();
+            rangeBar.SetValue(attackRange, 5f); // 假设最大值为5
+            rangeBar.SetLabel($"攻击范围: {attackRange:F1}");
+        }
+
+        // 更新攻击冷却状态栏
+        if (cooldownBar != null)
+        {
+            float attackCooldown = WeaponSystemBridge.Instance.GetCurrentAttackCooldown();
+            cooldownBar.SetValue(2f - attackCooldown, 2f); // 反向显示，越低越好
+            cooldownBar.SetLabel($"攻击冷却: {attackCooldown:F1}s");
+        }
     }
 }
 

@@ -19,10 +19,29 @@ public class EquipSlot : MonoBehaviour, IDropHandler, IPointerClickHandler
             icon.sprite = data != null ? data.icon : emptySprite;
             icon.color = data != null ? Color.white : new Color(1f, 1f, 1f, 0.6f);
         }
+
+        // 如果是武器装备槽，通知武器系统
+        if (allowedType == ItemType.Weapon && WeaponSystemBridge.Instance != null)
+        {
+            if (data != null && data.weaponData != null)
+            {
+                WeaponSystemBridge.Instance.EquipWeapon(data.weaponData);
+            }
+            else
+            {
+                WeaponSystemBridge.Instance.UnequipWeapon();
+            }
+        }
     }
 
     public void Clear()
     {
+        // 如果是武器装备槽，先卸载武器
+        if (allowedType == ItemType.Weapon && WeaponSystemBridge.Instance != null)
+        {
+            WeaponSystemBridge.Instance.UnequipWeapon();
+        }
+
         // return to inventory if possible
         if (CurrentItem != null && inventoryUI != null)
         {

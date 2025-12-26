@@ -109,6 +109,11 @@ public class InventoryDemoBootstrap : MonoBehaviour
         mp.SetValue(40f, 100f);
         atk.SetValue(30f, 100f);
 
+        // 武器状态栏（添加到 InventoryUI）
+        inventoryUI.attackBar = CreateStatusBar(statusArea.transform, "攻击力", Color.red);
+        inventoryUI.rangeBar = CreateStatusBar(statusArea.transform, "范围", Color.blue);
+        inventoryUI.cooldownBar = CreateStatusBar(statusArea.transform, "冷却", Color.green);
+
         // Right area - tabs + grid
         GameObject rightArea = CreateUIObject("RightArea", inventoryRoot.transform);
         RectTransform rightRt = rightArea.AddComponent<RectTransform>();
@@ -190,6 +195,15 @@ public class InventoryDemoBootstrap : MonoBehaviour
 
         // Keep inventory hidden initially
         inventoryRoot.SetActive(false);
+
+        // 初始化武器系统桥接器
+        GameObject bridgeGO = new GameObject("WeaponSystemBridge");
+        WeaponSystemBridge weaponBridge = bridgeGO.AddComponent<WeaponSystemBridge>();
+        // 如果有玩家对象，在这里设置引用
+        // weaponBridge.playerObject = playerGameObject;
+
+        // 添加武器集成测试脚本
+        bridgeGO.AddComponent<TestWeaponIntegration>();
     }
 
     void Update()

@@ -14,6 +14,9 @@ public class ItemData : ScriptableObject
     public ItemType itemType;
     public Sprite icon;
     [TextArea] public string description;
+
+    // 武器相关数据（仅在 itemType == Weapon 时使用）
+    public WeaponData weaponData;
 }
 
 
