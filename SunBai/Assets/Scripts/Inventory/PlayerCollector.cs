@@ -18,6 +18,11 @@ public class PlayerCollector : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        // Debug: 记录进入触发器的对象信息，便于诊断碰撞/图层问题
+        string otherLayerName = LayerMask.LayerToName(other.gameObject.layer);
+        string myLayerName = LayerMask.LayerToName(gameObject.layer);
+        Debug.Log($"PlayerCollector: OnTriggerEnter2D other.name={other.gameObject.name} other.isTrigger={other.isTrigger} other.layer={otherLayerName} myLayer={myLayerName} other.attachedRigidbody={(other.attachedRigidbody!=null?other.attachedRigidbody.bodyType.ToString():\"null\")}");
+
         var pickup = other.GetComponent<ItemPickup>();
         if (pickup != null && pickup.item != null)
         {
